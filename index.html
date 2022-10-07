@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info Loker Es Brasil</title>
+    <link rel="stylesheet" href="asset/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+        <div class="container">
+            <a class="navbar-brand text-white" href="#">Es Brasil Info Loker</a>
+            <form class="d-flex">
+                <a class="btn btn-success btn-sm" href="https://loker.esbrasilonline.com" target="_blank" title="Website Loker">
+                    <i class="fas fa-globe"></i>
+                </a>
+            </form>
+        </div>
+    </nav>
+
+    <section class="banner">
+
+    </section>
+
+    <section class="loker">
+        <div class="container">
+            <div class="row title">
+                <div class="col-lg-10 mx-auto mb-2">
+                    <div class="section-title text-center">
+                        <h3>KAMI SEDANG MEREKRUT</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-9 col-xl-9 mx-auto">
+                    <div class="card-loker">
+                        <div class="filter-result">
+                            <div class="bungkus-posisi d-flex flex-wrap align-items-center">
+                                <p class="posisi">
+                                    Posisi Tersedia:
+                                </p>
+                                <div id="posisi" class="badge bg-dark"> </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center">
+                            <div id="spinnerLoker" class="spinner-border d-none m-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+
+                        <div id="lokerShow"></div>
+                        <div class="text-left">
+                            <p><strong><i class="fas fa-exclamation-circle me-1"></i> Perhatian butuh waktu 1 menit (&plusmn;) untuk memuat website pertama kali</strong></p>
+                            <p><strong><i class="fas fa-wifi me-1"></i>Pastikan anda mempunya sinyal yang stabil</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <hr class="hr-light mt-2 margin-bottom-2x">
+            <!-- Copyright-->
+            <p class="footer-copyright">&copy; 2022 All rights reserved Es Brasil Create by &#10084; BogorStudio.</p>
+        </div>
+    </footer>
+
+    <div class="toast-container position-absolute p-3 fixed-bottom" id="toastPlacement">
+        <div id="toastLink" class="toast " role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body d-flex">
+                <strong class="me-auto">
+                    <i class="fas fa-check-circle text-success"></i>
+                    Copy Link
+                </strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="showModal" tabindex="-1" aria-hidden="true">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script>
+        let lokerHtml = "";
+        const lokerShow = document.getElementById("lokerShow");
+
+        $.ajax({
+            "url": "https://api.loker.esbrasilonline.com/api/Loker/loker-open",
+            "method": "GET",
+            "timeout": 0,
+            beforeSend: function() { // Before we send the request, remove the .hidden class from the spinner and default to inline-block.
+                $('#spinnerLoker').removeClass('d-none')
+            },
+            success: function(response) {
+                response.forEach(e => {
+                    getImage(e.idLoker, e);
+                });
+                posisiTersedia(response);
+            },
+            error: function(ex) {
+
+            },
+            complete: function() { // Set our complete callback, adding the .hidden class and hiding the spinner.
+                $('#spinnerLoker').addClass('d-none')
+            },
+        });
+
+        function getImage(id, lokerOpen) {
+            $.ajax({
+                "url": `https://api.loker.esbrasilonline.com/api/Loker/download-image-ilustrasi?lokerId=${id}`,
+                "method": "GET",
+                "timeout": 0,
+                xhr: function() {
+                    var xhr = new XMLHttpRequest();
+                    xhr.responseType = 'blob'
+                    return xhr;
+                },
+                success: function(respon) {
+                    cardLoker(id, respon, lokerOpen);
+                },
+                error: function(xhr, status) {},
+            })
+        }
+
+        function posisiTersedia(respon) {
+            document.getElementById("posisi").innerHTML = `${respon.length} Posisi`;
+        }
+
+        function cardLoker(idLoker, blobIlustrasi, lokerOpen) {
+            var url = window.URL || window.webkitURL;
+            let urlImg = url.createObjectURL(blobIlustrasi);
+
+            lokerHtml +=
+                `<div class="card b-1 hover-shadow mb-20" >
+                    <div class="row card-body ps-4 pe-5" onclick="event.preventDefault();showModalWarning(${lokerOpen.idLoker},event)">
+                        <div class="col-md-2 col-12 d-flex justify-content-center justify-content-md-start align-items-center">
+                            <img class="avatar avatar-xl rounded" src="${urlImg}" alt="...">
+                        </div>
+                        <div class="col-md-8 col-12 p-0 pt-3 pt-sm-1 ">
+                            <div class="mb-2">
+                                <span class="fs-20 pr-16 judul">${lokerOpen.judul}</span>
+                            </div>
+                            <small class="ls-1 keterangan">${lokerOpen.keterangan}</small>
+                        </div>
+                        <div class="col-md-2 col-12 p-0 mt-1">
+                            ${(
+                                () => {
+                                switch(lokerOpen.statusLowongan){
+                                    case "Full Time":
+                                    return `<span class="badge bg-success mb-12">${lokerOpen.statusLowongan}</span>`;
+                                    break;
+                                case "Part Time":
+                                    return`<span class="badge bg-danger mb-12">${lokerOpen.statusLowongan}</span>`;
+                                    break;
+                                case "Full Time / Part Time":
+                                    return`<span class="badge bg-primary mb-12">${lokerOpen.statusLowongan}</span>`;
+                                    break;
+                                default:
+                                    return`<span class="badge bg-dark mb-12">None</span>`;
+                                    break;
+                                }
+                            })()} <!--jangan lupa tanda kurung di akhir-->
+                        </div>
+                    </div>
+                    <footer class="card-footer flexbox align-items-center">
+                        <div class="text-start w-100 d-block d-sm-none">
+                            <button type="button" class="btn btn-light btn-sm" title="Copy Link" onclick="shareLink(${lokerOpen.idLoker})">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                            <button type="button" class="btn btn-info btn-sm" href="#modal-${idLoker}" onclick="event.preventDefault();showModalWarning(${lokerOpen.idLoker},event)" >
+                                <i class="fas fa-external-link"></i> Selengkapnya
+                            </button>
+                        </div>
+                        <div class="card-hover-show d-none d-sm-block">
+                            <button type="button" class="btn btn-light btn-sm" title="Copy Link" onclick="shareLink(${lokerOpen.idLoker})">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                            <button type="button" class="btn btn-info btn-sm" href="#modal-${idLoker}" onclick="event.preventDefault();showModalWarning(${lokerOpen.idLoker},event)" >
+                                <i class="fas fa-external-link"></i> Selengkapnya
+                            </button>
+                        </div>
+                    </footer>
+                </div>`;
+            lokerShow.innerHTML = lokerHtml;
+
+        }
+
+        function showModalWarning(idLoker, e) {
+            let modalShow = document.getElementById("showModal")
+                // modalShow.innerHTML = modalHtml;
+            modalShow.innerHTML = "";
+            modalShow.innerHTML = `
+                <!-- Modal -->        
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-engine-warning me-1 text-primary"></i> Pemberitahuan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                            <div class="text-left">
+                                <p><strong>Anda akan diarahkan ke website pendaftaran</strong></p>  
+                                <p><i class="fas fa-exclamation-circle me-1"></i> Perhatian butuh waktu 1 menit (&plusmn;) untuk memuat halaman pertama kali</p>
+                                <p><i class="fas fa-wifi me-1"></i>Pastikan anda mempunya sinyal yang stabil</p>
+                            </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                <a class="btn btn-success btn-sm" href="https://loker.esbrasilonline.com/lokerDetail/${idLoker}" target="_blank" title="Website Loker" >
+                                    <i class="fas fa-globe"></i> Buka Halaman
+                            </a>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            new bootstrap.Modal(modalShow).show();
+            e.preventDefault();
+            e.stopPropagation();
+
+            return false;
+        }
+
+        function shareLink(idLoker) {
+            var link = `https://loker.esbrasilonline.com/lokerDetail/${idLoker}`;
+            navigator.clipboard.writeText(link);
+            console.log(link)
+            var element = document.getElementById("toastLink");
+
+            // Create toast instance
+            var myToast = new bootstrap.Toast(element);
+            myToast.show();
+        }
+    </script>
+
+</body>
+
+</html>
